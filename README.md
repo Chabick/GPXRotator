@@ -1,0 +1,1 @@
+This is a small project to "rotate" the trackpoints in .gpx files a certain amount of points. It is build using Jaylib (Raylib for Java) for the GUI and steos jnafilechooser as a file selector, as well as jsoup for html reading.
