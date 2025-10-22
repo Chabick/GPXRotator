@@ -124,6 +124,7 @@ public class Main {
                     String name = trackNames.get(y);
                     if (x <= Raylib.MeasureText(name, 20)) {
                         boolean r_st = true;
+                        boolean reverse = false;
                         ByteBuffer byteInput = ByteBuffer.allocate(100);
 
                         while (r_st) {
@@ -140,13 +141,24 @@ public class Main {
                             Raylib.GuiTextBox(new Raylib.Rectangle().x(1).y(30).width(200).height(25),
                                     byteInput, 20, true);
 
+                            Raylib.DrawText("The trackname will be automatically changed to the filename.", 1, 100, 10, Colors.BLACK);
+
                             //System.out.println(new String(textInput.array(), Charset.defaultCharset()));
                             //System.out.println(textInput.get(0));
                             //ArrayList<Byte> byteList = new ArrayList<Byte>(Arrays.ofbyteInput.array());
                             List<Byte> list = IntStream.range(0, byteInput.array().length).mapToObj(i -> byteInput.array()[i])
                                     .collect(Collectors.toList());
                             list.removeIf(b -> {return b.byteValue() == (byte) 0;});
-                            if (list.size() > 0) {
+
+                            if (Raylib.GuiButton(new Raylib.Rectangle().x(1).y(60).width(90).height(25), "Reverse: " + reverse) == 1) {
+                                reverse = !reverse;
+                                if (list.isEmpty()) {
+                                    byteInput.put(0, "0".getBytes()[0]);
+                                    System.out.println(byteInput.array().toString());
+                                }
+                            }
+
+                            if (!list.isEmpty()) {
                                 String textInput = byteListToString(list, Charset.defaultCharset());
                                 try {
                                     int shift = Integer.valueOf(textInput);
@@ -157,6 +169,7 @@ public class Main {
                                             trackPoints.addFirst(trackPoints.getLast());
                                             trackPoints.removeLast();
                                         }
+                                        if (reverse) trackPoints = trackPoints.reversed();
 
                                         File saveFile = null;
                                         JnaFileChooser saveChooser = new JnaFileChooser();
@@ -189,7 +202,7 @@ public class Main {
                                             w.write("/>\n");
 
                                             w.write("<trk>\n");
-                                            w.write("<name>" + trackNames.get(y) + "</name>\n");
+                                            w.write("<name>" + saveFile.getName().replaceAll("\\.gpx", "") + "</name>\n");
                                             w.write("<trkseg>\n");
 
                                             for (Element el : trackPoints) {
@@ -215,7 +228,7 @@ public class Main {
 
                                     }
                                 } catch(NumberFormatException e) {
-                                    Raylib.DrawText("Only Numbers are allowed!", 1, 60, 10, Colors.RED);
+                                    Raylib.DrawText("Only Numbers are allowed!", 1, 85, 10, Colors.RED);
                                 }
                             }
 
